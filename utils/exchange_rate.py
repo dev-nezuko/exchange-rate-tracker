@@ -13,6 +13,9 @@ from models.exchange_rate import ExchangeRate
 from .constants import ECB_API_URL
 
 MAX_FEED_BYTES = 2 * 1024 * 1024
+# ECB rates carry at most five decimals; rounding the stored difference keeps
+# float subtraction noise (0.0075000000000000622) out of the API.
+CHANGE_DECIMALS = 6
 
 
 class FeedSnapshot(NamedTuple):
@@ -101,7 +104,7 @@ def insert_into_db(db: Session, rates: dict, published_on: date | None = None) -
                 .order_by(desc(ExchangeRate.created_at), desc(ExchangeRate.id))
                 .first()
             )
-            change = rate - previous.rate if previous else None
+            change = round(rate - previous.rate, CHANGE_DECIMALS) if previous else None
             db.add(ExchangeRate(currency=currency, rate=rate, change=change, published_on=published_on))
             inserted += 1
         db.commit()

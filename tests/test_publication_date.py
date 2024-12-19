@@ -87,3 +87,10 @@ def test_ensure_schema_adds_the_column_to_a_pre_existing_database():
     assert 'ux_exchange_rate_currency_published_on' in indexes
     with legacy.connect() as connection:
         assert connection.execute(text('SELECT published_on FROM exchange_rate')).scalar() is None
+
+
+def test_change_is_free_of_float_subtraction_noise(test_db):
+    importer.insert_into_db(test_db, {'AUD': 1.655}, date(2024, 3, 14))
+    importer.insert_into_db(test_db, {'AUD': 1.6625}, date(2024, 3, 15))
+    latest = test_db.query(ExchangeRate).filter_by(published_on=date(2024, 3, 15)).one()
+    assert latest.change == 0.0075
