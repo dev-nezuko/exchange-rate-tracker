@@ -9,10 +9,16 @@ class ExchangeRate(BaseModel):
     currency: str
     rate: float
     change: Optional[float] = None
+    published_on: Optional[date] = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class ExchangeRateResponse(BaseModel):
     Date: date = Field(default_factory=lambda: datetime.now(timezone.utc).date())
+    rates: List[ExchangeRate]
+
+
+class LatestPublicationResponse(BaseModel):
+    published_on: Optional[date] = None
     rates: List[ExchangeRate]

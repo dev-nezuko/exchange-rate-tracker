@@ -6,7 +6,7 @@ from apscheduler.triggers.cron import CronTrigger
 from fastapi import FastAPI
 
 import models  # noqa: F401  (registers the ORM tables on Base.metadata)
-from database import Base, engine
+from database import ensure_schema
 from resources import exchange_rates
 from utils.exchange_rate import fetch_and_store_exchange_rates
 
@@ -21,7 +21,7 @@ def create_app(enable_scheduler=None):
 
     @asynccontextmanager
     async def lifespan(_app):
-        Base.metadata.create_all(bind=engine)
+        ensure_schema()
         scheduler = None
         if enable_scheduler:
             scheduler = BackgroundScheduler(timezone='UTC')

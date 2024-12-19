@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from datetime import date
 from unittest.mock import Mock, patch
 import pytest
 from sqlalchemy import event
@@ -20,7 +21,7 @@ def test_xml_import_parses_positive_rates_without_live_network(monkeypatch):
     payload = b'<Envelope><Cube><Cube time="2024-01-01"><Cube currency="USD" rate="1.2"/><Cube currency="GBP" rate="0.8"/></Cube></Cube></Envelope>'
     fetch = Mock(return_value=Response(payload))
     monkeypatch.setattr(importer.requests, 'get', fetch)
-    assert importer.fetch_exchange_rates() == {'USD':1.2,'GBP':0.8}
+    assert importer.fetch_exchange_rates() == (date(2024, 1, 1), {'USD':1.2,'GBP':0.8})
     assert fetch.call_args.kwargs == {'timeout':15,'stream':True}
 
 
@@ -56,14 +57,14 @@ def test_scheduled_import_owns_and_closes_its_session(test_db,monkeypatch):
         try: yield test_db
         finally: test_db.close();closed.append(True)
     monkeypatch.setattr(importer,'SessionLocal',session_factory)
-    monkeypatch.setattr(importer,'fetch_exchange_rates',lambda:{'USD':1.2})
-    importer.fetch_and_store_exchange_rates()
+    monkeypatch.setattr(importer,'fetch_exchange_rates',lambda:importer.FeedSnapshot(date(2024, 1, 2),{'USD':1.2}))
+    assert importer.fetch_and_store_exchange_rates() == (date(2024, 1, 2), 1)
     assert closed == [True]
     assert test_db.query(ExchangeRate).count() == 1
 
 
 def test_schema_initialization_is_lifespan_only_and_scheduler_can_stay_off():
-    with patch('main.Base.metadata.create_all') as create,patch('main.BackgroundScheduler') as scheduler:
+    with patch('main.ensure_schema') as create,patch('main.BackgroundScheduler') as scheduler:
         app=create_app(enable_scheduler=False)
         create.assert_not_called()
         with TestClient(app) as client:
@@ -85,6 +86,7 @@ def test_malformed_feed_surfaces_as_value_error(monkeypatch, payload):
 
 def test_scheduled_import_runs_after_the_ecb_publishes_on_weekdays():
     from datetime import datetime, timezone
+
     from main import ECB_PUBLICATION_TRIGGER
     friday_evening = datetime(2024, 1, 5, 16, 0, tzinfo=timezone.utc)
     next_run = ECB_PUBLICATION_TRIGGER.get_next_fire_time(None, friday_evening)
