@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EUR reference rates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap">
+  <link rel="stylesheet" href="/static/rates.css">
+</head>
+<body>
+  <a class="skip" href="#board">Skip to the rates table</a>
+  <header class="masthead">
+    <p class="kicker">Import log &middot; ECB daily feed</p>
+    <h1>EUR reference rates</h1>
+    <p class="dateline" id="dateline">Loading the latest imported publication&hellip;</p>
+  </header>
+
+  <main id="board" aria-busy="true">
+    <div class="toolbar">
+      <label for="filter">Filter by code or name</label>
+      <input id="filter" type="search" autocomplete="off" spellcheck="false" placeholder="e.g. USD or yen" disabled>
+      <p class="count" id="count" aria-live="polite"></p>
+    </div>
+
+    <div id="status" class="status" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      Fetching rates from <code>/exchange-rates/latest</code>&hellip;
+    </div>
+
+    <table id="rates" hidden>
+      <caption class="visually-hidden">Units of each currency per one euro</caption>
+      <thead>
+        <tr>
+          <th scope="col">Code</th>
+          <th scope="col" class="name-col">Currency</th>
+          <th scope="col" class="num">Per 1 EUR</th>
+          <th scope="col" class="num">Change</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+
+  <footer class="colophon">
+    <p>Rates are the ECB's euro foreign exchange reference rates, as stored by this service.
+      They are published for information only and are not trading quotes.
+      &ldquo;Change&rdquo; is the absolute difference from the previous stored sample.</p>
+  </footer>
+  <script src="/static/rates.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+:root {
+  --paper: #f5f0e6;
+  --paper-edge: #e8dfcd;
+  --ink: #1d2420;
+  --muted: #5b625c;
+  --rule: #c9bea8;
+  --accent: #8a5a12;
+  --up: #1f6b3a;
+  --down: #a3271d;
+  --focus: #b8660b;
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #161a17;
+    --paper-edge: #202620;
+    --ink: #ece6d8;
+    --muted: #a7ab9f;
+    --rule: #3a4038;
+    --accent: #e0a95a;
+    --up: #6fcf8e;
+    --down: #f08a7e;
+    --focus: #f0b45e;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 var(--sans);
+}
+
+.skip {
+  position: absolute;
+  left: -999px;
+}
+.skip:focus { left: 1rem; top: 1rem; background: var(--ink); color: var(--paper); padding: .5rem .75rem; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.masthead, main, .colophon {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.masthead {
+  padding-top: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 3px double var(--rule);
+}
+
+.kicker {
+  margin: 0 0 .25rem;
+  font: 500 .8rem/1 var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+h1 {
+  margin: 0;
+  font: 700 clamp(2rem, 5vw, 3.25rem)/1.05 var(--serif);
+  letter-spacing: -.01em;
+}
+
+.dateline {
+  margin: .75rem 0 0;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--muted);
+}
+.dateline strong { color: var(--ink); }
+
+.toolbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: .5rem 1rem;
+  padding: 1.25rem 0 1rem;
+}
+.toolbar label { font-weight: 600; font-size: .95rem; }
+.toolbar input {
+  width: 100%;
+  max-width: 18rem;
+  padding: .5rem .65rem;
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper-edge);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+.count { margin: 0; font: .85rem var(--mono); color: var(--muted); }
+
+.status {
+  padding: 1.5rem;
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+  color: var(--muted);
+}
+.status.error { border-style: solid; border-color: var(--down); color: var(--ink); }
+.status button {
+  margin-left: .5rem;
+  padding: .35rem .8rem;
+  font: inherit;
+  color: var(--paper);
+  background: var(--ink);
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.spinner {
+  display: inline-block;
+  width: .8rem;
+  height: .8rem;
+  margin-right: .4rem;
+  border: 2px solid var(--rule);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  vertical-align: -1px;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+th {
+  padding: .5rem .5rem;
+  text-align: left;
+  font: 500 .75rem/1.2 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid var(--ink);
+}
+td {
+  padding: .6rem .5rem;
+  border-bottom: 1px solid var(--rule);
+}
+tbody tr:nth-child(even) { background: color-mix(in srgb, var(--paper-edge) 55%, transparent); }
+.num { text-align: right; }
+td.code { font: 500 1rem var(--mono); letter-spacing: .04em; }
+td.rate { font: 500 1.05rem var(--mono); }
+td.change { font: .95rem var(--mono); white-space: nowrap; }
+.up { color: var(--up); }
+.down { color: var(--down); }
+.flat { color: var(--muted); }
+
+.colophon {
+  margin-top: 2rem;
+  padding-bottom: 3rem;
+  font-size: .85rem;
+  color: var(--muted);
+}
+.colophon p { max-width: 40rem; border-top: 1px solid var(--rule); padding-top: 1rem; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 40rem) {
+  .masthead { padding-top: 1.5rem; }
+  .toolbar { grid-template-columns: 1fr; }
+  .toolbar input { max-width: none; }
+  .name-col, td.name { display: none; }
+  td, th { padding-left: .35rem; padding-right: .35rem; }
+}

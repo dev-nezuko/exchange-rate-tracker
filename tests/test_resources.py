@@ -20,3 +20,13 @@ def test_get_all_exchange_rates(test_client, test_db, test_exchange_rate):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()['rates']) == 1
     assert response.json()['rates'][0]['rate'] == test_exchange_rate.rate
+
+
+def test_rates_board_is_served_with_its_assets(test_client):
+    page = test_client.get('/rates')
+    assert page.status_code == status.HTTP_200_OK
+    assert page.headers['content-type'].startswith('text/html')
+    assert '<label for="filter">' in page.text
+    for asset in ('/static/rates.css', '/static/rates.js'):
+        assert asset in page.text
+        assert test_client.get(asset).status_code == status.HTTP_200_OK
