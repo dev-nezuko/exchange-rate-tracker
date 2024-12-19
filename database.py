@@ -2,12 +2,10 @@ import os
 from typing import Generator
 
 from sqlalchemy import Column, DateTime, Integer, create_engine, func
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from sqlalchemy.orm import Session, declarative_base, declared_attr, sessionmaker
 
 SQLALCHEMY_DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./exchange_rate.db')
 
-# Create engine and session
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={'check_same_thread': False} if SQLALCHEMY_DATABASE_URL.startswith('sqlite') else {},
@@ -33,7 +31,6 @@ class BaseModel:
         return cls.__name__.lower()
 
 
-# Create a declarative base that will use the BaseModel
 Base = declarative_base(cls=BaseModel)
 
 

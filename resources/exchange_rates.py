@@ -17,14 +17,15 @@ router = APIRouter()
     response_model=ExchangeRateResponse,
 )
 def get_exchange_rates(db: Session = Depends(get_db)):
-    '''
-    Will return all stored rates
-    '''
+    '''Rows imported during the current UTC day (an import log, not a snapshot).'''
 
     today = datetime.combine(datetime.now(timezone.utc).date(), datetime.min.time())
 
     exchange_rates = (
-        db.query(ExchangeRate).filter(ExchangeRate.created_at >= today, ExchangeRate.created_at < today + timedelta(days=1)).order_by(ExchangeRate.currency, ExchangeRate.id).all()
+        db.query(ExchangeRate)
+        .filter(ExchangeRate.created_at >= today, ExchangeRate.created_at < today + timedelta(days=1))
+        .order_by(ExchangeRate.currency, ExchangeRate.id)
+        .all()
     )
 
     return ExchangeRateResponse(rates=exchange_rates)

@@ -40,14 +40,20 @@ def fetch_exchange_rates():
     content = b''.join(parts)
     if b'<!DOCTYPE' in content.upper() or b'<!ENTITY' in content.upper():
         raise ValueError('DTD/entity declarations are not supported')
-    root = ET.fromstring(content)
+    try:
+        root = ET.fromstring(content)
+    except ET.ParseError as exc:
+        raise ValueError('ECB response is not well-formed XML') from exc
     rates = {}
     for cube in root.findall('.//{*}Cube[@time]'):
         for currency in cube.findall('.//{*}Cube[@currency]'):
             code = currency.attrib['currency']
             if code in rates:
                 raise ValueError('Duplicate currency in ECB response')
-            rates[code] = float(currency.attrib['rate'])
+            try:
+                rates[code] = float(currency.attrib['rate'])
+            except KeyError as exc:
+                raise ValueError(f'Missing rate for {code}') from exc
     validate_rates(rates)
     return rates
 
@@ -56,7 +62,12 @@ def insert_into_db(db: Session, rates: dict):
     validate_rates(rates)
     try:
         for currency, rate in rates.items():
-            previous = db.query(ExchangeRate).filter_by(currency=currency).order_by(desc(ExchangeRate.created_at), desc(ExchangeRate.id)).first()
+            previous = (
+                db.query(ExchangeRate)
+                .filter_by(currency=currency)
+                .order_by(desc(ExchangeRate.created_at), desc(ExchangeRate.id))
+                .first()
+            )
             change = rate - previous.rate if previous else None
             db.add(ExchangeRate(currency=currency, rate=rate, change=change))
         db.commit()

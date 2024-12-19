@@ -70,3 +70,22 @@ def test_schema_initialization_is_lifespan_only_and_scheduler_can_stay_off():
             assert client.get('/').status_code == 200
         create.assert_called_once()
         scheduler.assert_not_called()
+
+
+@pytest.mark.parametrize('payload', [
+    b'<Envelope><Cube',
+    b'<Envelope><Cube time="2024-01-01"><Cube currency="USD"/></Cube></Envelope>',
+    b'<Envelope><Cube time="2024-01-01"><Cube currency="USD" rate="abc"/></Cube></Envelope>',
+])
+def test_malformed_feed_surfaces_as_value_error(monkeypatch, payload):
+    monkeypatch.setattr(importer.requests, 'get', lambda *args, **kwargs: Response(payload))
+    with pytest.raises(ValueError):
+        importer.fetch_exchange_rates()
+
+
+def test_scheduled_import_runs_after_the_ecb_publishes_on_weekdays():
+    from datetime import datetime, timezone
+    from main import ECB_PUBLICATION_TRIGGER
+    friday_evening = datetime(2024, 1, 5, 16, 0, tzinfo=timezone.utc)
+    next_run = ECB_PUBLICATION_TRIGGER.get_next_fire_time(None, friday_evening)
+    assert (next_run.weekday(), next_run.hour, next_run.minute) == (0, 15, 30)
