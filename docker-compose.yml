@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DATABASE_URL: sqlite:////app/data/exchange_rate.db
+      ENABLE_SCHEDULER: "false"
+    volumes:
+      - exchange-rate-data:/app/data
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+volumes:
+  exchange-rate-data:
