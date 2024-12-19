@@ -1,9 +1,14 @@
 .git
 .env
 .env.*
+!.env.example
 .venv
 venv
+project_venv
 __pycache__
 *.db
 *.sqlite*
 .pytest_cache
+.ruff_cache
+data
+docs

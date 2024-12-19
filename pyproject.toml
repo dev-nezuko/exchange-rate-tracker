@@ -1,0 +1,12 @@
+[project]
+name = "exchange-rate-tracker"
+version = "0.2.0"
+description = "Imports the ECB daily euro reference-rate feed and serves it over FastAPI."
+readme = "readme.md"
+license = "MIT"
+requires-python = ">=3.13,<3.14"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["error::DeprecationWarning"]
